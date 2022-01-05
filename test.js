@@ -22,13 +22,10 @@ app.set('views', './');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// Route to Homepage
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
+
 
 // Route to Login Page
-app.get('/login', (req, res) => {
+app.get('/', (req, res) => {
     res.sendFile(__dirname + '/login.html');
 });
 
