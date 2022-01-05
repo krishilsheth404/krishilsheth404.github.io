@@ -23,7 +23,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 
-
 // Route to Login Page
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/login.html');
