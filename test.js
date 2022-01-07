@@ -84,7 +84,12 @@ app.post('/result', async(req, res) => {
             try {
                 // Fetching HTML
                 console.log("Degug 1: ", url);
-                const { data } = await axios.get(url)
+                try {
+                    const { data } = await axios.get(url)
+                } catch (err) {
+                    console.log('Axios error: ', err.message)
+                }
+                console.log(data)
 
                 const $ = cheerio.load(data);
 
