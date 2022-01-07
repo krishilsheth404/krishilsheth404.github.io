@@ -25,10 +25,8 @@
     "ejs": "^3.1.6",
     "express": "^4.17.2",
     "fs": "0.0.1-security",
-    "got": "^12.0.0",
     "puppeteer": "^13.0.1",
     "request": "^2.88.2",
-    "superagent": "^7.0.1",
     "twilio": "^3.72.0"
   }
 }
