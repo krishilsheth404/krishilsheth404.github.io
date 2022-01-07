@@ -83,6 +83,7 @@ app.post('/result', async(req, res) => {
         extractAddress = async(url) => {
             try {
                 // Fetching HTML
+                console.log("Degug 1");
                 const { data } = await axios.get(url)
 
                 const $ = cheerio.load(data);
