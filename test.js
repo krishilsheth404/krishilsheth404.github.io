@@ -24,14 +24,14 @@ app.use(bodyParser.json());
 var newItem;
 // Route to Login Page
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/login.html');
+    res.sendFile(__dirname + '/fruitLogin.html');
 });
 
 app.post('/result', async(req, res) => {
     // Insert Login Code Here
 
     final = [];
-    var item = req.body.foodItem;
+    const item = req.body.foodItem;
 
 
     urlForPharmEasy = `https://google.com/search?q=PharmEasy+${item}+order+online`;
@@ -64,9 +64,10 @@ app.post('/result', async(req, res) => {
 
             // Using cheerio to extract <a> tags
             const $ = cheerio.load(data);
+            var temp;
             // BreadCrumb_peBreadCrumb__2CyhJ
             $('.BreadCrumbLink_breadCrumb__LljfJ').map((i, elm) => {
-                item = $(elm).text();
+                temp = $(elm).text();
             })
             var price = $('.PriceInfo_ourPrice__P1VR1').text();
             if (price == '') {
@@ -75,7 +76,7 @@ app.post('/result', async(req, res) => {
             console.log(url);
             final.push({
                 name: 'PharmEasy',
-                item: item,
+                item: temp,
                 price: price,
             });
 
@@ -193,7 +194,7 @@ app.post('/result', async(req, res) => {
 
 
 
-    urlForFlipcart = `https://google.com/search?q=flipcart+${item}+order+online`;
+    urlForFlipcart = `https://google.com/search?q=flipkart+${item}`;
     extractLinksOfFlipcart = async(url) => {
         try {
             // Fetching HTML
@@ -245,7 +246,7 @@ app.post('/result', async(req, res) => {
     z = await extractDataOfFlipcart(z);
 
 
-    urlForTata = `https://google.com/search?q=tata+1mg+${item}+order+online`;
+    urlForTata = `https://google.com/search?q=tata+1mg+${item}+`;
     extractLinksOfTata = async(url) => {
         try {
             // Fetching HTML
