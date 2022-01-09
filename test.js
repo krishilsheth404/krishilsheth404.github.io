@@ -21,7 +21,7 @@ app.set('view engine', 'ejs');
 app.set('views', './');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
+var newItem;
 // Route to Login Page
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/login.html');
@@ -30,278 +30,429 @@ app.get('/', (req, res) => {
 app.post('/result', async(req, res) => {
     // Insert Login Code Here
 
-
-    let restaurant = req.body.restaurant;
-    let area = req.body.area;
-    let foodItem = req.body.foodItem;
-    // console.log(area, restaurant, foodItem);
-    var areaSplit = area;
-    var areaSplit = areaSplit.split(',');
-    // console.log(areaSplit)
-    // console.log(area);
-
-    if (areaSplit.length == 2 && areaSplit[0] != areaSplit[1]) {
-        urlForZomato = `https://google.com/search?q=zomato+${restaurant}+${area}+order+online`;
-        urlForZomato = urlForZomato.split(' ').join('+')
-
-        extractLinksOfZomato = async(url) => {
-            try {
-                // Fetching HTML
-                console.log(url);
-                const { data } = await axios.get(url)
-
-                // Using cheerio to extract <a> tags
-                const $ = cheerio.load(data);
-
-                rawUrl = $('.kCrYT>a').first().attr('href');
-                url = rawUrl.split("/url?q=")[1].split("&")[0];
-
-                if (url.includes("zomato") && !url.includes("/order")) {
-                    url = url + "/order"
-                }
-
-                tempurl = url;
-                tempurl = tempurl.split('/');
-
-                for (var i = 0; i < tempurl.length - 1; i++) {
-                    linkOld += tempurl[i];
-                    linkOld += '/';
-                }
-                console.log('linkOld ', linkOld);
-                console.log('url ', url);
-
-                return url;
-
-            } catch (error) {
-                // res.sendFile(__dirname + '/try.html');
-                console.log('hey');
-            }
-        };
-        z = await extractLinksOfZomato(urlForZomato);
-
-        extractAddress = async(url) => {
-            try {
-                // Fetching HTML
-                const { data } = await axios.get(url)
-
-                const $ = cheerio.load(data);
+    final = [];
+    var item = req.body.foodItem;
 
 
-                tempAddress = $.html('.clKRrC');
-                console.log(tempAddress);
-                tempAddress = tempAddress.split('>');
-                tempAddress = tempAddress[1].split('<');
-                // a = a.split('"');
-                tempAddress = tempAddress[0];
-                tempAddress = tempAddress.split(',');
-                tempAddress = tempAddress[tempAddress.length - 2] + tempAddress[tempAddress.length - 1];
-                console.log(tempAddress);
-                linkOld = '';
+    urlForPharmEasy = `https://google.com/search?q=PharmEasy+${item}+order+online`;
+    extractLinksOfPharmEasy = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
 
-                // var discountcodes;
-                // discountcodes = $.html('.evmswu');
-                // console.log(discountcodes);
-                return tempAddress;
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
 
+            rawUrl = $('.kCrYT>a').first().attr('href');
+            url = rawUrl.split("/url?q=")[1].split("&")[0];
+            // console.log(url);
 
-            } catch (error) {
-                // res.sendFile(__dirname + '/try.html');
-                console.log('hey2');
-            }
-        };
+            return url;
 
-        addr = await extractAddress(linkOld);
-
-        urlForSwiggy = `https://google.com/search?q=swiggy+${restaurant}+${addr}`;
-        urlForSwiggy = urlForSwiggy.split(' ').join('+')
-        console.log("urlForSwiggy: ", urlForSwiggy)
-
-        extractLinksOfSwiggy = async(url) => {
-            try {
-                // Fetching HTML
-                const { data } = await axios.get(url)
-
-                const $ = cheerio.load(data);
-                // console.log(data);
-
-                rawUrl = $('.kCrYT>a').attr('href');
-                console.log('Here => ', rawUrl);
-                url = rawUrl.split("/url?q=")[1].split("&")[0];
-
-                if (url.includes('www.swiggy.com')) {
-                    return url;
-                } else {
-                    // res.sendFile(__dirname + '/try.html');
-                    console.log('errorInUrl');
-
-                    // rawUrl = $('.kCrYT>a:nth-child(2)').attr('href');
-                    // console.log('SecondTry Url==>>', rawUrl);
-
-                }
-            } catch (error) {
-                // res.sendFile(__dirname + '/try.html');
-                console.log('hey3');
-                console.log(error)
-            }
-        };
-
-        s = await extractLinksOfSwiggy(urlForSwiggy);
-
-        console.log(z + '\n' + s);
-
-        if (z != '' && s != '') {
-            const scrapeDishesForZomato = async(url, dish) => {
-                const { data } = await axios.get(url)
-                const $ = cheerio.load(data)
-                toMatch = dish.toLowerCase()
-                matchedDishes = {}
-
-                //sc-jKVCRD
-                final.push({ restaurantName: restaurant });
-                // final.push({ area: area });
-                final.push({ urlForZomato: z });
-                final.push({ urlForSwiggy: s });
-                // final.push({ restaurantName: restaurant });
-                if (($('.iYoYyT').text()) == 'Closed') {
-                    Offers = 0;
-                } else if (($('.iYoYyT').text()) == 'Open now') {
-                    console.log("yes it is open!!");
-                    Offers = 1;
-                } else {
-                    Offers = 1;
-                }
-                // final.push($('.sc-ebFjAB').text());
-                // final.push($('.sc-jKVCRD').text());
-
-                if (Offers == 1) {
-                    console.log("Zomato Offers");
-                    $('.sc-1a03l6b-3').map((i, elm) => {
-                        final.push({
-                            zomatoOffers: $(elm).text()
-                        });
-                        console.log($(elm).text());
-
-                    })
-                }
-
-                $('[class^=sc-1s0saks-13]').each((_idx, el) => {
-                    item = $($('[class^=sc-1s0saks-15]', el)).text()
-                    price = $($('[class^=sc-17hyc2s-1]', el)).text()
-                        // console.log('zomato ' + item + ' ' + price);
-
-                    if (item.toString().toLowerCase().includes(toMatch)) {
-                        matchedDishes[item] = price
-                        matchedDishes[item] = price;
-                    }
-                })
-
-                return matchedDishes;
-            }
-
-            const scrapeDishesForSwiggy = async(url, dish) => {
-                const { data } = await axios.get(url)
-                const $ = cheerio.load(data)
-                toMatch = dish.toLowerCase()
-                matchedDishes = {}
-                    //_3F2Nk
-
-                if (Offers == 1) {
-                    console.log("\nSwiggy Offers");
-                    $('._3F2Nk').map((i, elm) => {
-                        checkForOffer = $(elm).text();
-                        console.log(checkForOffer);
-                        final.push({
-                            swiggyOffers: $(elm).text()
-                        }); //undefined   
-                    })
-                }
-
-                $('[class^=styles_detailsContainer]').each((_idx, el) => {
-                    item = $($('[class^=styles_itemNameText]', el)).text()
-                    price = $($('[class^=styles_itemPortionContainer]', el)).text()
-
-                    if (item.toString().toLowerCase().includes(toMatch)) {
-                        matchedDishes[item] = price
-                        matchedDishes[item] = price;
-
-                    }
-                })
-                return matchedDishes;
-            }
-
-            showDishes = async() => {
-                matchedDishesForZomato = await scrapeDishesForZomato(z, foodItem);
-                matchedDishesForSwiggy = await scrapeDishesForSwiggy(s, foodItem);
-                matchedDishes = {}
-
-
-                for (const dishName in matchedDishesForZomato) {
-                    lowerDishName = dishName.toLowerCase().split(' ').sort().join(' ')
-                    if (matchedDishes[lowerDishName]) {
-                        matchedDishes[lowerDishName]['Zomato'] = {
-                            'dishName': dishName,
-                            'price': matchedDishesForZomato[dishName].substring(1)
-                        }
-                    } else {
-                        matchedDishes[lowerDishName] = {
-                            'Zomato': {
-                                'dishName': dishName,
-                                'price': matchedDishesForZomato[dishName].substring(1)
-                            }
-                        }
-                    }
-                }
-
-                for (const dishName in matchedDishesForSwiggy) {
-                    lowerDishName = dishName.toLowerCase().split(' ').sort().join(' ')
-                    if (matchedDishes[lowerDishName]) {
-                        matchedDishes[lowerDishName]['Swiggy'] = {
-                            'dishName': dishName,
-                            'price': matchedDishesForSwiggy[dishName]
-                        }
-                    } else {
-                        matchedDishes[lowerDishName] = {
-                            'Swiggy': {
-                                'dishName': dishName,
-                                'price': matchedDishesForSwiggy[dishName]
-                            }
-                        }
-                    }
-                }
-
-                for (const dishName in matchedDishes) {
-                    console.log(dishName)
-                    final.push({
-                        'dishName': matchedDishes[dishName]['Swiggy'] != undefined ? matchedDishes[dishName]['Swiggy']['dishName'] : matchedDishes[dishName]['Zomato']['dishName'],
-                        'priceOnSwiggy': matchedDishes[dishName]['Swiggy'] == undefined ? 'N.A.' : matchedDishes[dishName]['Swiggy']['price'],
-                        'priceOnZomato': matchedDishes[dishName]['Zomato'] == undefined ? 'N.A.' : matchedDishes[dishName]['Zomato']['price']
-                    });
-                }
-
-                if (final.length == 0) {
-                    console.log('The Item Is Not Available In The Restaurant !')
-                    res.send('The Item Is Not Available In The Restaurant !')
-                } else {
-                    console.log(final);
-
-                    // res.send(final);
-                    res.render('index', { final: final });
-                }
-                final = [];
-                // console.log(final);
-                // for (var i = 0; i < 10; i++) {
-                //     res.send(i);
-                // }
-            }
-            await showDishes();
-        } else {
-            // res.sendFile(__dirname + '/output.html');
-            console.log('online delivery is not available in the restaurant');
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            return 0;
         }
-    } else {
-        res.sendFile(__dirname + '/error.html');
-    }
+    };
+    z = await extractLinksOfPharmEasy(urlForPharmEasy);
 
+    extractDataOfPharmEasy = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+            // BreadCrumb_peBreadCrumb__2CyhJ
+            $('.BreadCrumbLink_breadCrumb__LljfJ').map((i, elm) => {
+                item = $(elm).text();
+            })
+            var price = $('.PriceInfo_ourPrice__P1VR1').text();
+            if (price == '') {
+                price = $('.ProductPriceContainer_mrp__pX-2Q').text();
+            }
+            console.log(url);
+            final.push({
+                name: 'PharmEasy',
+                item: item,
+                price: price,
+            });
+
+            return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            console.log(error);
+            // console.log(error);
+            return 0;
+        }
+    };
+    z = await extractDataOfPharmEasy(z);
+
+
+    urlForNetMeds = `https://google.com/search?q=netmeds+${item}+order+online`;
+    extractLinksOfNetMeds = async(url) => {
+        try {
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+
+            rawUrl = $('.kCrYT>a').first().attr('href');
+            url = rawUrl.split("/url?q=")[1].split("&")[0];
+
+            return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            return 0;
+        }
+    };
+    z = await extractLinksOfNetMeds(urlForNetMeds);
+
+    extractDataOfNetMeds = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+
+            final.push({
+                name: 'NetMeds',
+                // item: item,
+                item: $('.product-detail').text(),
+                price: $('.final-price').text(),
+            });
+
+            return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            // console.log(error);
+            return 0;
+        }
+    };
+
+    z = await extractDataOfNetMeds(z);
+
+
+    urlForApollo = `https://google.com/search?q=Apollo+${item}+order+online`;
+    extractLinksOfApollo = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+
+            rawUrl = $('.kCrYT>a').first().attr('href');
+            url = rawUrl.split("/url?q=")[1].split("&")[0];
+
+            return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            return 0;
+        }
+    };
+
+    z = await extractLinksOfApollo(urlForApollo);
+
+    extractDataOfApollo = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+
+            final.push({
+                name: 'Apollo',
+                item: $('.PdpWeb_productDetails__3K6Dg').text(),
+                // item: item,
+                price: $('.MedicineInfoWeb_medicinePrice__ynSpV').text(),
+            });
+            // return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            // console.log(error);
+            return 0;
+        }
+    };
+    z = await extractDataOfApollo(z);
+
+
+
+
+
+    urlForFlipcart = `https://google.com/search?q=flipcart+${item}+order+online`;
+    extractLinksOfFlipcart = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+
+            rawUrl = $('.kCrYT>a').first().attr('href');
+            url = rawUrl.split("/url?q=")[1].split("&")[0];
+
+            return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            return 0;
+        }
+    };
+
+    z = await extractLinksOfFlipcart(urlForFlipcart);
+
+
+
+    extractDataOfFlipcart = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+
+            final.push({
+                name: 'Flipcart',
+                item: $('.B_NuCI').text(),
+                // item: item,
+                price: $('._30jeq3').text(),
+            });
+            // return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            // console.log(error);
+            return 0;
+        }
+    };
+
+    z = await extractDataOfFlipcart(z);
+
+
+    urlForTata = `https://google.com/search?q=tata+1mg+${item}+order+online`;
+    extractLinksOfTata = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+
+            rawUrl = $('.kCrYT>a').first().attr('href');
+            url = rawUrl.split("/url?q=")[1].split("&")[0];
+
+            return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            return 0;
+        }
+    };
+
+    z = await extractLinksOfTata(urlForTata);
+
+
+
+    extractDataOfTata = async(url) => {
+        try {
+            // Fetching HTML
+            const { data } = await axios.get(url)
+
+            // Using cheerio to extract <a> tags
+            const $ = cheerio.load(data);
+
+            final.push({
+                name: 'Tata 1mg',
+                item: $('.DrugHeader__title-content___2ZaPo').text(),
+                // item: item,
+                price: $('.DrugPriceBox__price___dj2lv').text(),
+            });
+            // return url;
+
+        } catch (error) {
+            // res.sendFile(__dirname + '/try.html');
+            // res.sendFile(__dirname + '/error.html');
+            // console.log(error);
+            return 0;
+        }
+    };
+
+    z = await extractDataOfTata(z);
+
+
+    console.log(final);
+    res.render('fruitPresentData', { final: final });
+    final = [];
+
+    // if (z != '' && s != '') {
+    //     const scrapeDishesForZomato = async(url, dish) => {
+    //         const { data } = await axios.get(url)
+    //         const $ = cheerio.load(data)
+    //         toMatch = dish.toLowerCase()
+    //         matchedDishes = {}
+
+    //         //sc-jKVCRD
+    //         final.push({ restaurantName: restaurant });
+    //         // final.push({ area: area });
+    //         final.push({ urlForZomato: z });
+    //         final.push({ urlForSwiggy: s });
+    //         // if (($('.iYoYyT').text()) == 'Closed') {
+    //         //     Offers = 0;
+    //         // } else if (($('.iYoYyT').text()) == 'Open now') {
+    //         //     console.log("open!!");
+    //         //     Offers = 1;
+    //         // } else {
+    //         //     Offers = 1;
+    //         // }
+
+    //         // if (Offers == 1) {
+    //         console.log("Zomato Offers");
+
+    //         try {
+    //             $('.GyojG').map((i, elm) => {
+    //                 final.push({
+    //                     zomatoOffers: $(elm).text()
+    //                 });
+    //                 console.log($(elm).text());
+
+    //             })
+    //         } catch (error) {
+    //             console.log(error);
+    //         }
+    //         // }
+
+    //         $('[class^=sc-1s0saks-13]').each((_idx, el) => {
+    //             item = $($('[class^=sc-1s0saks-15]', el)).text()
+    //             price = $($('[class^=sc-17hyc2s-1]', el)).text()
+    //                 // console.log('zomato ' + item + ' ' + price);
+
+    //             if (item.toString().toLowerCase().includes(toMatch)) {
+    //                 matchedDishes[item] = price
+    //                 matchedDishes[item] = price;
+    //             }
+    //         })
+
+    //         return matchedDishes;
+    //     }
+
+    //     const scrapeDishesForSwiggy = async(url, dish) => {
+    //         const { data } = await axios.get(url)
+    //         const $ = cheerio.load(data)
+    //         toMatch = dish.toLowerCase()
+    //         matchedDishes = {}
+    //             //_3F2Nk
+
+    //         // if (Offers == 1) {
+    //         console.log("\nSwiggy Offers");
+    //         $('.DM5zR').map((i, elm) => {
+    //                 checkForOffer = $(elm).text();
+    //                 // console.log(checkForOffer);
+    //                 final.push({
+    //                     swiggyOffers: $(elm).text()
+    //                 }); //undefined   
+    //             })
+    //             // }
+
+    //         $('[class^=styles_detailsContainer]').each((_idx, el) => {
+    //             item = $($('[class^=styles_itemNameText]', el)).text()
+    //             price = $($('[class^=styles_itemPortionContainer]', el)).text()
+
+    //             if (item.toString().toLowerCase().includes(toMatch)) {
+    //                 matchedDishes[item] = price
+    //                 matchedDishes[item] = price;
+
+    //             }
+    //         })
+    //         return matchedDishes;
+    //     }
+
+    //     showDishes = async() => {
+    //         matchedDishesForZomato = await scrapeDishesForZomato(z, foodItem);
+    //         matchedDishesForSwiggy = await scrapeDishesForSwiggy(s, foodItem);
+    //         matchedDishes = {}
+
+
+    //         for (const dishName in matchedDishesForZomato) {
+    //             lowerDishName = dishName.toLowerCase().split(' ').sort().join(' ')
+    //             if (matchedDishes[lowerDishName]) {
+    //                 matchedDishes[lowerDishName]['Zomato'] = {
+    //                     'dishName': dishName,
+    //                     'price': matchedDishesForZomato[dishName].substring(1)
+    //                 }
+    //             } else {
+    //                 matchedDishes[lowerDishName] = {
+    //                     'Zomato': {
+    //                         'dishName': dishName,
+    //                         'price': matchedDishesForZomato[dishName].substring(1)
+    //                     }
+    //                 }
+    //             }
+    //         }
+
+    //         for (const dishName in matchedDishesForSwiggy) {
+    //             lowerDishName = dishName.toLowerCase().split(' ').sort().join(' ')
+    //             if (matchedDishes[lowerDishName]) {
+    //                 matchedDishes[lowerDishName]['Swiggy'] = {
+    //                     'dishName': dishName,
+    //                     'price': matchedDishesForSwiggy[dishName]
+    //                 }
+    //             } else {
+    //                 matchedDishes[lowerDishName] = {
+    //                     'Swiggy': {
+    //                         'dishName': dishName,
+    //                         'price': matchedDishesForSwiggy[dishName]
+    //                     }
+    //                 }
+    //             }
+    //         }
+
+    //         for (const dishName in matchedDishes) {
+    //             // console.log(dishName)
+    //             final.push({
+    //                 'dishName': matchedDishes[dishName]['Swiggy'] != undefined ? matchedDishes[dishName]['Swiggy']['dishName'] : matchedDishes[dishName]['Zomato']['dishName'],
+    //                 'priceOnSwiggy': matchedDishes[dishName]['Swiggy'] == undefined ? 'N.A.' : matchedDishes[dishName]['Swiggy']['price'],
+    //                 'priceOnZomato': matchedDishes[dishName]['Zomato'] == undefined ? 'N.A.' : matchedDishes[dishName]['Zomato']['price']
+    //             });
+    //         }
+
+    //         console.log(final);
+    //         if (final.length == 0) {
+    //             console.log('The Item Is Not Available In The Restaurant !')
+    //             res.send('The Item Is Not Available In The Restaurant !')
+    //         } else {
+
+    //             // res.send(final);
+
+    //             res.render('index', { final: final });
+    //         }
+    //         final = [];
+    //         // console.log(final);
+    //         // for (var i = 0; i < 10; i++) {
+    //         //     res.send(i);
+    //         // }
+    //     }
+    //     await showDishes();
+    // } else {
+    //     // res.sendFile(__dirname + '/output.html');
+    //     console.log('online delivery is not available in the restaurant');
+    // }
 });
 
 const port = 3000 // Port we will listen on
