@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 var newItem;
 // Route to Login Page
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/fruitLogin.html');
+    res.sendFile(__dirname + '/login.html');
 });
 
 app.post('/result', async(req, res) => {
@@ -299,7 +299,7 @@ app.post('/result', async(req, res) => {
 
 
     console.log(final);
-    res.render('fruitPresentData', { final: final });
+    res.render('index', { final: final });
     final = [];
 
     // if (z != '' && s != '') {
