@@ -8,6 +8,7 @@ const puppeteer = require('puppeteer');
 const request = require('request');
 const { link } = require('fs');
 const ejs = require("ejs");
+const superagent = require('superagent');
 const { AddressContext } = require('twilio/lib/rest/api/v2010/account/address');
 const { getElementsByTagType } = require('domutils');
 
@@ -49,7 +50,7 @@ app.post('/result', async(req, res) => {
             try {
                 // Fetching HTML
                 console.log(url);
-                const { data } = await axios.get(url)
+                const data = await getData(url)
 
                 // Using cheerio to extract <a> tags
                 const $ = cheerio.load(data);
@@ -84,11 +85,7 @@ app.post('/result', async(req, res) => {
             try {
                 // Fetching HTML
                 console.log("Degug 1: ", url);
-                try {
-                    const { data } = await axios.get(url)
-                } catch (err) {
-                    console.log('Axios error: ', err.message)
-                }
+                const data = await getData(url)
                 console.log(data)
 
                 const $ = cheerio.load(data);
@@ -126,7 +123,7 @@ app.post('/result', async(req, res) => {
         extractLinksOfSwiggy = async(url) => {
             try {
                 // Fetching HTML
-                const { data } = await axios.get(url)
+                const data = await getData(url)
 
                 const $ = cheerio.load(data);
                 // console.log(data);
@@ -158,7 +155,7 @@ app.post('/result', async(req, res) => {
 
         if (z != '' && s != '') {
             const scrapeDishesForZomato = async(url, dish) => {
-                const { data } = await axios.get(url)
+                const data = await getData(url)
                 const $ = cheerio.load(data)
                 toMatch = dish.toLowerCase()
                 matchedDishes = {}
@@ -206,7 +203,7 @@ app.post('/result', async(req, res) => {
             }
 
             const scrapeDishesForSwiggy = async(url, dish) => {
-                const { data } = await axios.get(url)
+                const data = await getData(url)
                 const $ = cheerio.load(data)
                 toMatch = dish.toLowerCase()
                 matchedDishes = {}
@@ -317,3 +314,15 @@ const port = process.env.PORT || 3000 // Port we will listen on
 app.listen(port, () => console.log(`This app is listening on port ${port}`));
 
 // app.listen(port, () => console.log(`This app is listening on port ${port}`));
+
+async function getData(url) {
+    try {
+        console.log('Getting response for url: ', url);
+        const response = await axios.get(url);
+        // console.log('response: ', response.data);
+        return response.data;
+    } catch (error) {
+        console.log('Axios error: ', error)
+        return error;
+    }
+};
