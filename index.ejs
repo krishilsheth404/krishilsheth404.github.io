@@ -163,6 +163,10 @@
             .priceBox {
                 text-align: right;
             }
+            #swiggyOffersBox {
+                width: 200px;
+                height: auto;
+            }
         }
         
         @media screen and (min-width:500px)and (max-width:1000px) {
@@ -239,6 +243,10 @@
             .priceBox {
                 text-align: right;
             }
+            #swiggyOffersBox {
+                width: 300px;
+                height: auto;
+            }
         }
         
         @media screen and (min-width:1000px) {
@@ -307,6 +315,10 @@
                 flex-direction: column;
                 text-align: right;
             }
+            #swiggyOffersBox {
+                width: 300px;
+                height: auto;
+            }
         }
     </style>
 </head>
@@ -316,7 +328,7 @@
         <!-- <h1 style="color: green"> GeeksForGeeks </h1> -->
         <center>
             <div style="font-family: monospace;text-transform:uppercase;font-size: 30px;margin: 40px;">
-                <%=final[0].restaurantName %><br>
+                Medicine Price Comparisor
             </div>
         </center>
         <%var count=0%>
@@ -353,9 +365,9 @@
                     </span>
                     </span> -->
 
-            <div style="height: auto;width: 100%;background-color: rgb(255, 254, 254);display: flex;align-items:center;justify-content: center;flex-wrap:wrap;">
-                <% for(var i=count+3; i < final.length; i++) {itemCount++; %>
-                    <% if(final[i].dishName) {%>
+            <div id='itemsDisplayBox' style="height: auto;width: 100%;background-color: rgb(255, 254, 254);display: flex;align-items:center;justify-content: center;flex-wrap:wrap;">
+                <% for(var i=0; i < final.length; i++) { %>
+                    <% if(final[i].dishName) {itemCount++;%>
                         <div class="outOfTheBox">
                             <div class="boxForFoodItem">
                                 <div class="numberOfItemBox">
@@ -363,55 +375,21 @@
                                 </div>
 
                                 <div class="nameOfFoodItem">
-                                    <span class="nameOfItem"><%= final[i].dishName%></span>
+                                    <span class="nameOfItem"><%= final[i].name%></span>
                                 </div>
 
 
 
                                 <div class="priceBox">
-
-                                    <div class="priceOnZomato">
-                                        <a href="<%=final[1].urlForZomato %>" class='link' target="_blank">
-                                            <span>Price On Zomato :</span>
-                                            <span class='priceZ'>₹ <%= final[i].priceOnZomato%></span> <br>
-
-                                            <span class='offers'>
-                                                     Offers on Zomato:<br>
-                                            <% for(var j=3; j < final.length; j++) { %>
-                                                <% if(final[j].zomatoOffers) {%>
-                                                      <div>
-                                                          <%= final[j].zomatoOffers%>
-                                                      </div>
-                                            <%}%>
-                                                <%}%>
-                                                    </span>
-
-                                        </a>
-                                    </div>
-
-                                    <div class="priceOnSwiggy">
-                                        <a href="<%=final[2].urlForSwiggy %>" class='link' target="_blank">
-                                            <span>Price On Swiggy :</span>
-                                            <span class='priceS'>₹ <%= final[i].priceOnSwiggy%></span>
-                                            <span class='offers'> <br>
-                                                Offers in Swiggy:<br>
-                                       <% for(var k=3; k < final.length; k++) { %>
-                                           <% if(final[k].swiggyOffers) {%>
-                                                 <div>
-                                                     <%= final[k].swiggyOffers%>
-                                                 </div>
-                                       <%}%>
-                                           <%}%>
-                                               </span>
-                                        </a>
+                                    <div>
+                                        <%=final[i].item%>
+                                            <%=final[i].price%>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <%}else{%>
-                            <h2>No Results Found!!</h2>
+                        <%}%>
                             <%}%>
-                                <%}%>
             </div>
 
 </body>
