@@ -456,7 +456,7 @@ app.post('/result', async(req, res) => {
     // }
 });
 
-const port = 3000 // Port we will listen on
+const port = process.env.PORT || 3000 // Port we will listen on
 
 // Function to listen on the port
 app.listen(port, () => console.log(`This app is listening on port ${port}`));
