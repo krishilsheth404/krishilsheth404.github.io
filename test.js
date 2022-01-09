@@ -318,13 +318,13 @@ async function getData(url) {
         if (url.includes('http:')) {
             url = url.replace('http', 'https');
         }
-        const response = await axios.get(url);
-        // const response = await axios({
-        //     method: 'get',
-        //     url: url,
-        //     headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        //     withCredentials: true
-        // });
+        // const response = await axios.get(url);
+        const response = await axios({
+            method: 'get',
+            url: url,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            withCredentials: true
+        });
         // console.log('response: ', response.data);
         return response.data;
     } catch (error) {
