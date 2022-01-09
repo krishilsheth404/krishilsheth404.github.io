@@ -76,7 +76,8 @@
             justify-content: center;
         }
         
-        .priceBox {
+        .priceBox,
+        .offers {
             height: auto;
             margin: 15px;
             width: 95%;
@@ -160,10 +161,12 @@
             .priceOnSwiggy {
                 margin-right: 15px;
             }
-            .priceBox {
+            .priceBox,
+            .offers {
                 text-align: right;
             }
-            #swiggyOffersBox {
+            #swiggyOffersBox,
+            .offers {
                 width: 200px;
                 height: auto;
             }
@@ -240,10 +243,12 @@
             .priceOnSwiggy {
                 margin-right: 15px;
             }
-            .priceBox {
+            .priceBox,
+            .offers {
                 text-align: right;
             }
-            #swiggyOffersBox {
+            #swiggyOffersBox,
+            .offers {
                 width: 300px;
                 height: auto;
             }
@@ -284,7 +289,7 @@
             .numberOfItemBox {
                 background-color: #DA4453;
                 color: rgb(255, 255, 255);
-                height: 104%;
+                height: 105%;
                 border-radius: 0px;
                 width: 80px;
                 font-family: cursive;
@@ -305,7 +310,8 @@
                 align-items: center;
                 justify-content: center;
             }
-            .priceBox {
+            .priceBox,
+            .offers {
                 height: auto;
                 margin: 15px;
                 width: 98%;
@@ -315,7 +321,8 @@
                 flex-direction: column;
                 text-align: right;
             }
-            #swiggyOffersBox {
+            #swiggyOffersBox,
+            .offers {
                 width: 300px;
                 height: auto;
             }
@@ -367,7 +374,7 @@
 
             <div id='itemsDisplayBox' style="height: auto;width: 100%;background-color: rgb(255, 254, 254);display: flex;align-items:center;justify-content: center;flex-wrap:wrap;">
                 <% for(var i=0; i < final.length; i++) { %>
-                    <% if(final[i].dishName) {itemCount++;%>
+                    <% if(final[i].name) {itemCount++;%>
                         <div class="outOfTheBox">
                             <div class="boxForFoodItem">
                                 <div class="numberOfItemBox">
@@ -381,10 +388,10 @@
 
 
                                 <div class="priceBox">
-                                    <div>
-                                        <%=final[i].item%>
-                                            <%=final[i].price%>
-                                    </div>
+                                    <span class='offers'>
+                                      <%=final[i].item%>
+                                      <%=final[i].price%>
+                                  </span>
                                 </div>
                             </div>
                         </div>
