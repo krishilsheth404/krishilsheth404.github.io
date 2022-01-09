@@ -318,7 +318,12 @@ app.listen(port, () => console.log(`This app is listening on port ${port}`));
 async function getData(url) {
     try {
         console.log('Getting response for url: ', url);
-        const response = await axios.get(url);
+        const response = await axios({
+            method: 'get',
+            url: url,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            withCredentials: true
+        });
         // console.log('response: ', response.data);
         return response.data;
     } catch (error) {
