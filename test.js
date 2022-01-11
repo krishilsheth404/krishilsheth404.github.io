@@ -16,7 +16,6 @@ var matchedDishesForSwiggy, matchedDishesForZomato, tempAddress, discCodesForZom
 var z, s, w;
 var sdfd, tempurl, tempurl2;
 var Offers = 0;
-var final = [];
 app.set('view engine', 'ejs');
 app.set('views', './');
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -30,11 +29,10 @@ app.get('/', (req, res) => {
 app.post('/result', async(req, res) => {
     // Insert Login Code Here
 
-    final = [];
-    const item = req.body.foodItem;
 
 
-    urlForPharmEasy = `https://google.com/search?q=PharmEasy+${item}+order+online`;
+
+    urlForPharmEasy = `https://google.com/search?q=PharmEasy+${req.body.foodItem}+order+online`;
     extractLinksOfPharmEasy = async(url) => {
         try {
             // Fetching HTML
@@ -52,6 +50,7 @@ app.post('/result', async(req, res) => {
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
+            console.log(error);
             return 0;
         }
     };
@@ -60,6 +59,7 @@ app.post('/result', async(req, res) => {
     extractDataOfPharmEasy = async(url) => {
         try {
             // Fetching HTML
+            var final = [];
             const { data } = await axios.get(url)
 
             // Using cheerio to extract <a> tags
@@ -80,20 +80,21 @@ app.post('/result', async(req, res) => {
                 price: price,
             });
 
-            return url;
+            return final;
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
             console.log(error);
+
             // console.log(error);
-            return 0;
+            return final;
         }
     };
-    z = await extractDataOfPharmEasy(z);
+    final = await extractDataOfPharmEasy(z);
 
 
-    urlForNetMeds = `https://google.com/search?q=netmeds+${item}+order+online`;
+    urlForNetMeds = `https://google.com/search?q=netmeds+${req.body.foodItem}+order+online`;
     extractLinksOfNetMeds = async(url) => {
         try {
             const { data } = await axios.get(url)
@@ -109,12 +110,13 @@ app.post('/result', async(req, res) => {
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
+            console.log(error);
             return 0;
         }
     };
     z = await extractLinksOfNetMeds(urlForNetMeds);
 
-    extractDataOfNetMeds = async(url) => {
+    extractDataOfNetMeds = async(url, final) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
@@ -129,20 +131,20 @@ app.post('/result', async(req, res) => {
                 price: $('.final-price').text(),
             });
 
-            return url;
+            return final;
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
-            // console.log(error);
-            return 0;
+            console.log(error);
+            return final;
         }
     };
 
-    z = await extractDataOfNetMeds(z);
+    final = await extractDataOfNetMeds(z, final);
 
 
-    urlForApollo = `https://google.com/search?q=Apollo+${item}+order+online`;
+    urlForApollo = `https://google.com/search?q=Apollo+${req.body.foodItem}+order+online`;
     extractLinksOfApollo = async(url) => {
         try {
             // Fetching HTML
@@ -165,7 +167,7 @@ app.post('/result', async(req, res) => {
 
     z = await extractLinksOfApollo(urlForApollo);
 
-    extractDataOfApollo = async(url) => {
+    extractDataOfApollo = async(url, final) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
@@ -179,22 +181,22 @@ app.post('/result', async(req, res) => {
                 // item: item,
                 price: $('.MedicineInfoWeb_medicinePrice__ynSpV').text(),
             });
-            // return url;
+            return final;
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
             // console.log(error);
-            return 0;
+            return final;
         }
     };
-    z = await extractDataOfApollo(z);
+    final = await extractDataOfApollo(z, final);
 
 
 
 
 
-    urlForFlipcart = `https://google.com/search?q=flipkart+${item}`;
+    urlForFlipcart = `https://google.com/search?q=flipkart+${req.body.foodItem}`;
     extractLinksOfFlipcart = async(url) => {
         try {
             // Fetching HTML
@@ -219,7 +221,7 @@ app.post('/result', async(req, res) => {
 
 
 
-    extractDataOfFlipcart = async(url) => {
+    extractDataOfFlipcart = async(url, final) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
@@ -233,20 +235,20 @@ app.post('/result', async(req, res) => {
                 // item: item,
                 price: $('._30jeq3').text(),
             });
-            // return url;
+            return final;
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
             // console.log(error);
-            return 0;
+            return final;
         }
     };
 
-    z = await extractDataOfFlipcart(z);
+    final = await extractDataOfFlipcart(z, final);
 
 
-    urlForTata = `https://google.com/search?q=tata+1mg+${item}+`;
+    urlForTata = `https://google.com/search?q=tata+1mg+${req.body.foodItem}+`;
     extractLinksOfTata = async(url) => {
         try {
             // Fetching HTML
@@ -271,7 +273,7 @@ app.post('/result', async(req, res) => {
 
 
 
-    extractDataOfTata = async(url) => {
+    extractDataOfTata = async(url, final) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
@@ -285,17 +287,17 @@ app.post('/result', async(req, res) => {
                 // item: item,
                 price: $('.DrugPriceBox__price___dj2lv').text(),
             });
-            // return url;
+            return final;
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
             // console.log(error);
-            return 0;
+            return final;
         }
     };
 
-    z = await extractDataOfTata(z);
+    final = await extractDataOfTata(z, final);
 
 
     console.log(final);
