@@ -143,34 +143,34 @@ app.post('/result', async(req, res) => {
     };
     final.push(await extractDataOfApollo(z));
 
-    urlForFlipcart = `https://google.com/search?q=flipkart+${req.body.foodItem}`;
-    z = await extractLinkFromGoogle(urlForFlipcart);
+    // urlForFlipcart = `https://google.com/search?q=flipkart+${req.body.foodItem}`;
+    // z = await extractLinkFromGoogle(urlForFlipcart);
 
-    extractDataOfFlipcart = async(url) => {
-        try {
-            // Fetching HTML
-            const { data } = await axios.get(url)
-            console.log(data)
+    // extractDataOfFlipcart = async(url) => {
+    //     try {
+    //         // Fetching HTML
+    //         const { data } = await axios.get(url)
+    //         console.log(data)
 
-            // Using cheerio to extract <a> tags
-            const $ = cheerio.load(data);
+    //         // Using cheerio to extract <a> tags
+    //         const $ = cheerio.load(data);
 
-            return {
-                name: 'Flipcart',
-                item: $('.B_NuCI').text(),
-                // item: item,
-                price: $('._30jeq3').text(),
-            };
+    //         return {
+    //             name: 'Flipcart',
+    //             item: $('.B_NuCI').text(),
+    //             // item: item,
+    //             price: $('._30jeq3').text(),
+    //         };
 
-        } catch (error) {
-            // res.sendFile(__dirname + '/try.html');
-            // res.sendFile(__dirname + '/error.html');
-            console.log(error);
-            return {};
-        }
-    };
+    //     } catch (error) {
+    //         // res.sendFile(__dirname + '/try.html');
+    //         // res.sendFile(__dirname + '/error.html');
+    //         console.log(error);
+    //         return {};
+    //     }
+    // };
 
-    final.push(await extractDataOfFlipcart(z));
+    // final.push(await extractDataOfFlipcart(z));
 
     urlForTata = `https://google.com/search?q=tata+1mg+${req.body.foodItem}+`;
     z = await extractLinkFromGoogle(urlForTata);
