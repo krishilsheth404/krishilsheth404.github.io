@@ -10,56 +10,55 @@ const ejs = require("ejs");
 const { AddressContext } = require('twilio/lib/rest/api/v2010/account/address');
 const { getElementsByTagType } = require('domutils');
 
-var urlForSwiggy, urlForZomato;
-var extractLinksOfSwiggy, extractLinksOfZomato, matchedDishes = {};
-var matchedDishesForSwiggy, matchedDishesForZomato, tempAddress, discCodesForZomato, addr, linkOld = '';
-var z, s, w;
-var sdfd, tempurl, tempurl2;
-var Offers = 0;
+// var urlForSwiggy, urlForZomato;
+// var extractLinksOfSwiggy, extractLinksOfZomato, matchedDishes = {};
+// var matchedDishesForSwiggy, matchedDishesForZomato, tempAddress, discCodesForZomato, addr, linkOld = '';
+// var z, s, w;
+// var sdfd, tempurl, tempurl2;
+// var Offers = 0;
 app.set('view engine', 'ejs');
 app.set('views', './');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-var newItem;
+// var newItem;
 // Route to Login Page
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/login.html');
 });
 
+extractLinkFromGoogle = async(url) => {
+    try {
+        // Fetching HTML
+        const { data } = await axios.get(url)
+
+        // Using cheerio to extract <a> tags
+        const $ = cheerio.load(data);
+
+        rawUrl = $('.kCrYT>a').first().attr('href');
+        url = rawUrl.split("/url?q=")[1].split("&")[0];
+        console.log('Extracting url: ', url);
+
+        return url;
+
+    } catch (error) {
+        // res.sendFile(__dirname + '/try.html');
+        // res.sendFile(__dirname + '/error.html');
+        console.log(error);
+        return 0;
+    }
+};
+
 app.post('/result', async(req, res) => {
     // Insert Login Code Here
 
-
-
+    const final = []
 
     urlForPharmEasy = `https://google.com/search?q=PharmEasy+${req.body.foodItem}+order+online`;
-    extractLinksOfPharmEasy = async(url) => {
-        try {
-            // Fetching HTML
-            const { data } = await axios.get(url)
-
-            // Using cheerio to extract <a> tags
-            const $ = cheerio.load(data);
-
-            rawUrl = $('.kCrYT>a').first().attr('href');
-            url = rawUrl.split("/url?q=")[1].split("&")[0];
-            // console.log(url);
-
-            return url;
-
-        } catch (error) {
-            // res.sendFile(__dirname + '/try.html');
-            // res.sendFile(__dirname + '/error.html');
-            console.log(error);
-            return 0;
-        }
-    };
-    z = await extractLinksOfPharmEasy(urlForPharmEasy);
+    z = await extractLinkFromGoogle(urlForPharmEasy);
 
     extractDataOfPharmEasy = async(url) => {
         try {
             // Fetching HTML
-            var final = [];
             const { data } = await axios.get(url)
 
             // Using cheerio to extract <a> tags
@@ -73,50 +72,27 @@ app.post('/result', async(req, res) => {
             if (price == '') {
                 price = $('.ProductPriceContainer_mrp__pX-2Q').text();
             }
-            console.log(url);
-            final.push({
+
+            return {
                 name: 'PharmEasy',
                 item: temp,
                 price: price,
-            });
-
-            return final;
-
+            };
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
             console.log(error);
 
             // console.log(error);
-            return final;
+            return {};
         }
     };
-    final = await extractDataOfPharmEasy(z);
-
+    final.push(await extractDataOfPharmEasy(z));
 
     urlForNetMeds = `https://google.com/search?q=netmeds+${req.body.foodItem}+order+online`;
-    extractLinksOfNetMeds = async(url) => {
-        try {
-            const { data } = await axios.get(url)
+    z = await extractLinkFromGoogle(urlForNetMeds);
 
-            // Using cheerio to extract <a> tags
-            const $ = cheerio.load(data);
-
-            rawUrl = $('.kCrYT>a').first().attr('href');
-            url = rawUrl.split("/url?q=")[1].split("&")[0];
-
-            return url;
-
-        } catch (error) {
-            // res.sendFile(__dirname + '/try.html');
-            // res.sendFile(__dirname + '/error.html');
-            console.log(error);
-            return 0;
-        }
-    };
-    z = await extractLinksOfNetMeds(urlForNetMeds);
-
-    extractDataOfNetMeds = async(url, final) => {
+    extractDataOfNetMeds = async(url) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
@@ -124,28 +100,26 @@ app.post('/result', async(req, res) => {
             // Using cheerio to extract <a> tags
             const $ = cheerio.load(data);
 
-            final.push({
+            return {
                 name: 'NetMeds',
-                // item: item,
                 item: $('.product-detail').text(),
                 price: $('.final-price').text(),
-            });
-
-            return final;
+            };
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
             console.log(error);
-            return final;
+            return {};
         }
     };
 
-    final = await extractDataOfNetMeds(z, final);
-
+    final.push(await extractDataOfNetMeds(z));
 
     urlForApollo = `https://google.com/search?q=Apollo+${req.body.foodItem}+order+online`;
-    extractLinksOfApollo = async(url) => {
+    z = await extractLinkFromGoogle(urlForApollo);
+
+    extractDataOfApollo = async(url) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
@@ -153,51 +127,26 @@ app.post('/result', async(req, res) => {
             // Using cheerio to extract <a> tags
             const $ = cheerio.load(data);
 
-            rawUrl = $('.kCrYT>a').first().attr('href');
-            url = rawUrl.split("/url?q=")[1].split("&")[0];
-
-            return url;
-
-        } catch (error) {
-            // res.sendFile(__dirname + '/try.html');
-            // res.sendFile(__dirname + '/error.html');
-            return 0;
-        }
-    };
-
-    z = await extractLinksOfApollo(urlForApollo);
-
-    extractDataOfApollo = async(url, final) => {
-        try {
-            // Fetching HTML
-            const { data } = await axios.get(url)
-
-            // Using cheerio to extract <a> tags
-            const $ = cheerio.load(data);
-
-            final.push({
+            return {
                 name: 'Apollo',
                 item: $('.PdpWeb_productDetails__3K6Dg').text(),
                 // item: item,
                 price: $('.MedicineInfoWeb_medicinePrice__ynSpV').text(),
-            });
-            return final;
+            };
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
-            // console.log(error);
-            return final;
+            console.log(error);
+            return {};
         }
     };
-    final = await extractDataOfApollo(z, final);
-
-
-
-
+    final.push(await extractDataOfApollo(z));
 
     urlForFlipcart = `https://google.com/search?q=flipkart+${req.body.foodItem}`;
-    extractLinksOfFlipcart = async(url) => {
+    z = await extractLinkFromGoogle(urlForFlipcart);
+
+    extractDataOfFlipcart = async(url) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
@@ -205,51 +154,27 @@ app.post('/result', async(req, res) => {
             // Using cheerio to extract <a> tags
             const $ = cheerio.load(data);
 
-            rawUrl = $('.kCrYT>a').first().attr('href');
-            url = rawUrl.split("/url?q=")[1].split("&")[0];
-
-            return url;
-
-        } catch (error) {
-            // res.sendFile(__dirname + '/try.html');
-            // res.sendFile(__dirname + '/error.html');
-            return 0;
-        }
-    };
-
-    z = await extractLinksOfFlipcart(urlForFlipcart);
-
-
-
-    extractDataOfFlipcart = async(url, final) => {
-        try {
-            // Fetching HTML
-            const { data } = await axios.get(url)
-
-            // Using cheerio to extract <a> tags
-            const $ = cheerio.load(data);
-
-            final.push({
+            return {
                 name: 'Flipcart',
                 item: $('.B_NuCI').text(),
                 // item: item,
                 price: $('._30jeq3').text(),
-            });
-            return final;
+            };
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
-            // console.log(error);
-            return final;
+            console.log(error);
+            return {};
         }
     };
 
-    final = await extractDataOfFlipcart(z, final);
-
+    final.push(await extractDataOfFlipcart(z));
 
     urlForTata = `https://google.com/search?q=tata+1mg+${req.body.foodItem}+`;
-    extractLinksOfTata = async(url) => {
+    z = await extractLinkFromGoogle(urlForTata);
+
+    extractDataOfTata = async(url) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
@@ -257,53 +182,25 @@ app.post('/result', async(req, res) => {
             // Using cheerio to extract <a> tags
             const $ = cheerio.load(data);
 
-            rawUrl = $('.kCrYT>a').first().attr('href');
-            url = rawUrl.split("/url?q=")[1].split("&")[0];
-
-            return url;
-
-        } catch (error) {
-            // res.sendFile(__dirname + '/try.html');
-            // res.sendFile(__dirname + '/error.html');
-            return 0;
-        }
-    };
-
-    z = await extractLinksOfTata(urlForTata);
-
-
-
-    extractDataOfTata = async(url, final) => {
-        try {
-            // Fetching HTML
-            const { data } = await axios.get(url)
-
-            // Using cheerio to extract <a> tags
-            const $ = cheerio.load(data);
-
-            final.push({
+            return {
                 name: 'Tata 1mg',
                 item: $('.DrugHeader__title-content___2ZaPo').text(),
                 // item: item,
                 price: $('.DrugPriceBox__price___dj2lv').text(),
-            });
-            return final;
+            };
 
         } catch (error) {
             // res.sendFile(__dirname + '/try.html');
             // res.sendFile(__dirname + '/error.html');
-            // console.log(error);
-            return final;
+            console.log(error);
+            return {};
         }
     };
 
-    final = await extractDataOfTata(z, final);
-
+    final.push(await extractDataOfTata(z));
 
     console.log(final);
     res.render('index', { final: final });
-    final = [];
-
     // if (z != '' && s != '') {
     //     const scrapeDishesForZomato = async(url, dish) => {
     //         const { data } = await axios.get(url)
