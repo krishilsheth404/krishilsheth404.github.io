@@ -150,6 +150,7 @@ app.post('/result', async(req, res) => {
         try {
             // Fetching HTML
             const { data } = await axios.get(url)
+            console.log(data)
 
             // Using cheerio to extract <a> tags
             const $ = cheerio.load(data);
