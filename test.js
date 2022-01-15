@@ -182,12 +182,14 @@ app.post('/result', async(req, res) => {
 
             // Using cheerio to extract <a> tags
             const $ = cheerio.load(data);
+            console.log($.html());  
 
             return {
                 name: 'Tata 1mg',
-                item: $('.DrugHeader__title-content___2ZaPo').text(),
+                item: $('.container-fluid-padded>h1').text(),
                 // item: item,
-                price: $('.DrugPriceBox__price___dj2lv').text(),
+                // price: $('.DrugPriceBox__price___dj2lv').text(),
+                price: $('.Price__price__22Jxo').text()
             };
 
         } catch (error) {
