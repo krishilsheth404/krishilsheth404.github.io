@@ -25,7 +25,8 @@
     "ejs": "^3.1.6",
     "express": "^4.17.2",
     "fs": "0.0.1-security",
-    "puppeteer": "^13.0.1",
+    "googleapis": "^95.0.0",
+    "puppeteer": "^13.6.0",
     "request": "^2.88.2",
     "twilio": "^3.72.0"
   }

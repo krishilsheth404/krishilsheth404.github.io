@@ -1,4 +1,4 @@
-// app using yahoo.com as a search engine
+// app backup slow version of test.js
 const express = require('express'); // Include ExpressJS
 const app = express(); // Create an ExpressJS app
 const bodyParser = require('body-parser'); // Middleware 
@@ -8,9 +8,11 @@ const cheerio = require('cheerio')
 const puppeteer = require('puppeteer');
 const request = require('request');
 const fs = require('fs');
+
 const ejs = require("ejs");
 const { AddressContext } = require('twilio/lib/rest/api/v2010/account/address');
 const { getElementsByTagType } = require('domutils');
+
 // var urlForSwiggy, urlForZomato;
 // var extractLinksOfSwiggy, extractLinksOfZomato, matchedDishes = {};
 // var matchedDishesForSwiggy, matchedDishesForZomato, tempAddress, discCodesForZomato, addr, linkOld = '';
@@ -30,6 +32,8 @@ app.get('/', (req, res) => {
 app.post('/', (req, res) => {
     res.sendFile(__dirname + '/name.html');
 });
+
+
 app.post('/details', async(req, res) => {
     // Insert Login Code Here
 
@@ -72,6 +76,30 @@ app.post('/details', async(req, res) => {
     res.render('name', { final: final });
 });
 
+extractLinkFromAskDotCom = async(url) => {
+    try {
+        // Fetching HTML
+        const { data } = await axios.get(url)
+            // console.log(data)
+
+        // Using cheerio to extract <a> tags
+        const $ = cheerio.load(data);
+        // console.log($.html());
+
+        rawUrl = $('.PartialSearchResults-item-title-link').first().attr('href');
+        console.log(rawUrl);
+        // url = rawUrl.split("/url?q=")[1].split("&")[0];
+        // console.log('Extracting url: ', url);
+
+        return rawUrl;
+
+    } catch (error) {
+        // res.sendFile(__dirname + '/try.html');
+        // res.sendFile(__dirname + '/error.html');
+        console.log(error);
+        return 0;
+    }
+};
 // app.get('/', (req, res) => {
 //     res.sendFile(__dirname + '/name.html');
 // });
@@ -109,7 +137,7 @@ extractLinkFromyahoo = async(url) => {
         const $ = cheerio.load(data);
         // console.log($.html());
 
-        rawUrl = $('li[class=first] .compTitle h3 a').first().attr('href');
+        rawUrl = $('.compTitle h3 a').first().attr('href');
         console.log(rawUrl);
         // url = rawUrl.split("/url?q=")[1].split("&")[0];
         // console.log('Extracting url: ', url);
@@ -131,7 +159,7 @@ extractDataOfPharmEasy = async(url) => {
 
         // Using cheerio to extract <a> tags
         const $ = cheerio.load(data);
-        // console.log($.html());
+        console.log($.html());
         var temp;
         // BreadCrumb_peBreadCrumb__2CyhJ
         $('.BreadCrumbLink_breadCrumb__LljfJ').map((i, elm) => {
@@ -267,27 +295,27 @@ extractDataOfSS = async(url) => {
         // console.log($.html());
         var t, m;
 
-        // t = $('.hedertitel').text()
-        // if ($('.hedertitel').text() != '') {
-        //     t = $('.hedertitel').text();
-        // } else {
-        //     t = $('.DispNamePlaceHolder h1').text();
-        // }
+        t = $('.hedertitel').text()
+        if ($('.hedertitel').text() != '') {
+            t = $('.hedertitel').text();
+        } else {
+            t = $('.DispNamePlaceHolder h1').text();
+        }
 
-        // m = $('.pad5 h4').first().text();
-        // if (m == '') {
-        //     m = $('.pricetitle').first().text();
-        // } else {
-        //     m = "NA";
-        // }
+        m = $('.pad5 h4').first().text();
+        if (m == '') {
+            m = $('.pricetitle').first().text();
+        } else {
+            m = "NA";
+        }
 
 
         return {
-            name: 'MyMedicalShop',
-            item: $('.product-item-name').first().text().trim(),
+            name: 'OBf',
+            item: t,
             link: url,
             // item: item,
-            price: $('[data-price-type=finalPrice]').first().text().trim(),
+            price: m,
         };
 
     } catch (error) {
@@ -340,7 +368,7 @@ extractDataOfTata = async(url) => {
         }
 
         if (m != '') {
-            console.log(m);
+            // console.log(m);
             if (m.includes('off')) {
 
 
@@ -468,51 +496,10 @@ extractDataOfOBP = async(url) => {
     }
 };
 
-
-
 app.post('/result', async(req, res) => {
     // Insert Login Code Here
 
     const nameOfMed = req.body.dataOfMed + '\n';
-    // try {
-    //     let date_ob = new Date();
-
-    //     // current date
-    //     // adjust 0 before single digit date
-    //     const date = ("0" + date_ob.getDate()).slice(-2);
-
-    //     // current month
-    //     const month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
-
-    //     // current year
-    //     const year = date_ob.getFullYear();
-    //     const finalDate = date + '/' + month + '/' + year;
-
-    //     const auth = new google.auth.GoogleAuth({
-    //         keyFile: "medicompJson.json",
-    //         scopes: "https://www.googleapis.com/auth/spreadsheets",
-    //     })
-    //     const spreadsheetId = "18AFfkHKArlpCqDuBC6yzfXOkTgOzRGmXeq88uhqQqGo";
-    //     const client = await auth.getClient();
-    //     const googleSheets = google.sheets({ version: "v4", auth: client });
-
-    //     googleSheets.spreadsheets.values.append({
-    //             auth,
-    //             spreadsheetId,
-    //             range: "Sheet1!A:B",
-    //             valueInputOption: "USER_ENTERED",
-    //             resource: {
-    //                 values: [
-    //                     [finalDate, nameOfMed]
-    //                 ]
-    //             },
-    //         })
-    //         // console.log(metadata);
-    // } catch (error) {
-    //     console.log({});
-    // }
-
-
 
     // fs.appendFile("data.txt", nameOfMed, function(err) {
     //     if (err) {
@@ -520,66 +507,59 @@ app.post('/result', async(req, res) => {
     //     }
     //     console.log("The file was saved!");
     // });
-    // https://www.ask.com/web?q=site:apollopharmacy.in%20crocin%20advance&ad=dirN&o=0
-    const urlForPharmEasy = `https://in.search.yahoo.com/search;_ylt=?p=site:pharmeasy.in+${nameOfMed}&ad=dirN&o=0`;
-    const urlForNetMeds = `https://in.search.yahoo.com/search;_ylt=?p=site:netmeds.com+${nameOfMed}&ad=dirN&o=0`;
+    console.log(nameOfMed);
+
+    const urlForPharmEasy = `https://search.aol.com/aol/search;_ylt=?q=site:pharmeasy.in+${nameOfMed}`;
+    const urlForNetMeds = `https://search.aol.com/aol/search;_ylt=?q=site:netmeds.com+${nameOfMed}`;
     const urlForApollo = `https://www.apollopharmacy.in/search-medicines/${nameOfMed}`;
-    // const urlForHealthmug = `https://www.healthmug.com/search?keywords=${nameOfMed}`;
-    const urlForTata = `https://in.search.yahoo.com/search;_ylt=?p=site:1mg.com+${nameOfMed}&ad=dirN&o=0`;
-    const urlForOBP = `https://in.search.yahoo.com/search;_ylt=?p=site:tabletshablet.com+${nameOfMed}&ad=dirN&o=0`;
-    const urlFormedplusMart = `https://in.search.yahoo.com/search;_ylt=?p=site:pulseplus.in+${nameOfMed}&ad=dirN&o=0`;
-    const urlForMyUpChar = `https://in.search.yahoo.com/search;_ylt=?p=site:myupchar.com+${nameOfMed}&ad=dirN&o=0`;
-    const items = [urlForNetMeds, urlForPharmEasy, urlForTata, urlForOBP, urlFormedplusMart, urlForMyUpChar];
-    const item = [],
-        final = [];
+    // urlForHealthmug = `https://www.healthmug.com/search?keywords=${nameOfMed}`;
+    // urlForSS = `https://www.google.com/search?q=onebharatpharmacy.com+${nameOfMed}`;
+    const urlForTata = `https://search.aol.com/aol/search;_ylt=?q=site:1mg.com+${nameOfMed}`;
+    const urlForOBP = `https://search.aol.com/aol/search;_ylt=?q=site:tabletshablet.com+${nameOfMed}`;
+    // const urlFormedplusMart = `https://search.aol.com/aol/search;_ylt=?q=pulseplus.in+${nameOfMed}`;
+    const urlForMyUpChar = `https://search.aol.com/aol/search;_ylt=?q=site:myupchar.com+${nameOfMed}`;
+    const listOfItems = [urlForPharmEasy, urlForNetMeds, urlForTata, urlForOBP, urlForMyUpChar];
     // getLinks = async() => {
     //     for (const item of items) {
     //         // await fetchItem(item)
     //         // if (t != '') {
     //         if (item.includes('netmeds')) {
-    //             final.push(
-    //                     await extractLinkFromyahoo(item)
-    //                 ) // final.push(await extractDataOfNetMeds(t));
+    //             urlForNetMeds =
+    //                 await extractLinkFromyahoo(item)
+    //                 // final.push(await extractDataOfNetMeds(t));
     //         } else if (item.includes('1mg')) {
 
-    //             final.push(
-    //                 await extractLinkFromyahoo(item)
-    //             )
+    //             urlForTata = await extractLinkFromyahoo(item)
 
 
     //             // final.push(await extractDataOfTata(t));
     //         } else if (item.includes('myupchar')) {
-    //             final.push(
-    //                 await extractLinkFromyahoo(item)
-    //             )
+    //             urlForMyUpChar =
+    //                 await extractLinkFromyahoo(item);
 
     //             console.log(urlForMyUpChar);
 
     //             // final.push(await extractDataOfmedplusMart(t));
     //         } else if (item.includes('pharmeasy')) {
     //             // console.log('yes in it');
-    //             final.push(
-
-    //                 await extractLinkFromyahoo(item)
-    //             )
+    //             urlForPharmEasy =
+    //                 await extractLinkFromyahoo(item);
 
     //             // console.log(urlForMyUpChar);
 
     //             // final.push(await extractDataOfmedplusMart(t));
     //         } else if (item.includes('pulseplus')) {
     //             // console.log('yes in it');
-    //             final.push(
-    //                 await extractLinkFromyahoo(item)
-    //             )
+    //             urlFormedplusMart =
+    //                 await extractLinkFromyahoo(item);
 
     //             // console.log(urlForMyUpChar);
 
     //             // final.push(await extractDataOfmedplusMart(t));
     //         } else if (item.includes('tabletshablet')) {
     //             // console.log('yes in it');
-    //             final.push(
-    //                 await extractLinkFromyahoo(item)
-    //             )
+    //             urlForOBP =
+    //                 await extractLinkFromyahoo(item);
 
     //             // console.log(urlForMyUpChar);
 
@@ -593,91 +573,52 @@ app.post('/result', async(req, res) => {
     //     }
     // }
     // await getLinks();
-    // console.log(final);
 
 
-    // const item = [];
-    // item.push(
-    //     await extractLinkFromyahoo(urlForPharmEasy),
-    // )
-    // item.push(
-    //     await extractLinkFromyahoo(urlForNetMeds),
-    // )
-    // item.push(
-    //     await extractLinkFromyahoo(urlForTata),
-    // )
-    // item.push(
-    //     await extractLinkFromyahoo(urlForMyUpChar),
-    // )
-    // item.push(
-    //     await extractLinkFromyahoo(urlForOBP),
-    // )
-    // item.push(
-    //     await extractLinkFromyahoo(urlFormedplusMart),
-    // )
-    async function getData(item) {
-        // console.log('---');
+    // const items = await Promise.all([
+    const Ufpe = await extractLinkFromyahoo(urlForPharmEasy)
+    const Ufnm = await extractLinkFromyahoo(urlForNetMeds)
+    const Uft = await extractLinkFromyahoo(urlForTata)
+    const Ufmuc = await extractLinkFromyahoo(urlForMyUpChar)
+        // await extractLinkFromyahoo(urlForOBP),
+    const Ufobp = await extractLinkFromyahoo(urlForOBP);
+    // ]);
+    // axios.all([axios.get(urlForPharmeasy)])
+    // .then(axios.spread(urlForPharmEasy){
+    //     console.log(axios.spread(urlForPharmEasy));
+    // })
 
-        final.push(await extractDataOfApollo(urlForApollo))
-            // final.push(await extractDataOfHealthmug(urlForHealthmug))
+    const final = await Promise.all([
+        await extractDataOfApollo(urlForApollo),
+        await extractDataOfPharmEasy(Ufpe),
+        await extractDataOfNetMeds(Ufnm),
+        await extractDataOfTata(Uft),
+        await extractDataOfMyUpChar(Ufmuc),
+        // await extractDataOfOBP(items[4]),
+        await extractDataOfOBP(Ufobp),
+    ]);
 
-        await Promise.all(item.map(async(item) => {
-            if (item != undefined || item != 0) {
-                if (item.includes('netmeds')) {
-                    final.push(await extractDataOfNetMeds(item))
-                        // await fetchItem(item) 
-                } else if (item.includes('1mg')) {
-                    final.push(await extractDataOfTata(item))
-                        // await fetchItem(item) 
-                } else if (item.includes('pharmeasy')) {
-                    final.push(await extractDataOfPharmEasy(item))
-                        // await fetchItem(item) 
-                } else if (item.includes('tabletshablet')) {
-                    final.push(await extractDataOfOBP(item))
-                        // await fetchItem(item) 
-                } else if (item.includes('pulseplus')) {
-                    final.push(await extractDataOfmedplusMart(item))
-                        // await fetchItem(item) 
-                } else if (item.includes('myupchar')) {
-                    final.push(await extractDataOfMyUpChar(item))
-                        // await fetchItem(item) 
-                }
-                // await fetchItem(item) 
-
-            }
-        }))
-
-        // final.push(await extractDataOfSS(urlForSS));
+    final.push(nameOfMed);
+    console.log(final)
+        // fs.appendFile("data.txt", nameOfMed, function(err) {
+        //     if (err) {
+        //         return console.log(err);
+        //     }
+        //     console.log("The file was saved!");
+        // });
 
 
-        final.push(nameOfMed);
-        console.log(final);
-
-
-
+    try {
         res.render('final', { final: final });
-
+    } catch (error) {
+        res.render('error.html', { final: final });
     }
-
-    await axios.all([extractLinkFromyahoo(urlForNetMeds), extractLinkFromyahoo(urlForPharmEasy), extractLinkFromyahoo(urlForTata), extractLinkFromyahoo(urlForOBP), extractLinkFromyahoo(urlFormedplusMart), extractLinkFromyahoo(urlForMyUpChar)])
-        .then(await axios.spread(async(...responses) => {
-            // console.log(...responses);
-
-            item.push(responses[0])
-            item.push(responses[1])
-            item.push(responses[2])
-            item.push(responses[3])
-            item.push(responses[4])
-            item.push(responses[5])
-
-            console.log(item);
-            getData(item);
-        }))
-
-
 
 });
 
+app.get('/pastdata', (req, res) => {
+    res.sendFile(__dirname + '/data.txt');
+});
 const port = process.env.PORT || 5000 // Port we will listen on
 
 // Function to listen on the port
